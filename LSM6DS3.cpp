@@ -98,6 +98,67 @@ bool LSM6DS3::updateAccelScale() {
     return true;
 }
 
+bool LSM6DS3::significantMovement(bool enable) {
+    char data[2];
+
+    if (!readRegister(REG_CTRL10_C, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b101;
+    data[0] |= (char)enable; // SIGN_MOTION_EN
+    data[0] |= (char)enable << 2; // FUNC_EN
+
+    if (!writeRegister(REG_CTRL10_C, data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_CTRL10_C, data + 1)) {
+        return false;
+    }
+
+    if (data[0] != data[1]) {
+        return false;
+    }
+
+    /*data[0] &= 0b10000000;
+    data[0] |= (char)enable << 7; // FUNC_CFG_EN
+
+    if (!writeRegister(REG_FUNC_CFG_ACCESS, data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_FUNC_CFG_ACCESS, data + 1)) {
+        return false;
+    }
+
+    if (data[0] != data[1]) {
+        return false;
+    }*/
+
+    // enable interrupt
+    if (!readRegister(REG_INT1_CTRL, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b01000000;
+    data[0] |= (char)enable << 6; // INT1_SIGN_MO
+
+    if (!writeRegister(REG_INT1_CTRL, data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_INT1_CTRL, data + 1)) {
+        return false;
+    }
+
+    if (data[0] != data[1]) {
+        return false;
+    }
+
+    return true;
+}
+
 float LSM6DS3::temperatureToC(int16_t raw) {
     return ((float)raw / 16.0) + 25.0;
 }

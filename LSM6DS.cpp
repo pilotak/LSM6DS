@@ -81,7 +81,8 @@ bool LSM6DS::getTemperature(int16_t *raw_temp) {
 
 bool LSM6DS::getAccel(float *x, float *y, float *z) {
     char data[6];
-    float res;
+    int16_t raw;
+    float calc = _accel_scale / 32768.0;
     tr_info("Getting accel axis");
 
     if (!readRegister(REG_OUTX_L_XL, data, 6)) {
@@ -90,36 +91,52 @@ bool LSM6DS::getAccel(float *x, float *y, float *z) {
     }
 
     if (x) {
-        res = ((int16_t)data[1] << 8) | data[0];
-        res *= _accel_scale;
-        res /= 32768.0;
-
-        *x = res;
+        raw = ((int16_t)data[1] << 8) | data[0];
+        *x = (raw * calc);
     }
 
     if (y) {
-        res = ((int16_t)data[3] << 8) | data[2];
-        res *= _accel_scale;
-        res /= 32768.0;
-
-        *y = res;
+        raw = ((int16_t)data[3] << 8) | data[2];
+        *y = (raw * calc);
     }
 
     if (z) {
-        res = ((int16_t)data[5] << 8) | data[4];
-        res *= _accel_scale;
-        res /= 32768.0;
-
-        *z = res;
+        raw = ((int16_t)data[5] << 8) | data[4];
+        *z = (raw * calc);
     }
-
-    tr_error("_accel_scale: %i", ((int16_t)data[1] << 8) | data[0]);
 
     return true;
 }
 
+bool LSM6DS::getAccel(int16_t *x, int16_t *y, int16_t *z) {
+    char data[6];
+    tr_info("Getting accel axis");
+
+    if (!readRegister(REG_OUTX_L_XL, data, 6)) {
+        tr_error("Could not get accel axis");
+        return false;
+    }
+
+    if (x) {
+        *x = ((int16_t)data[1] << 8) | data[0];
+    }
+
+    if (y) {
+        *y = ((int16_t)data[3] << 8) | data[2];
+    }
+
+    if (z) {
+        *z = ((int16_t)data[5] << 8) | data[4];
+    }
+
+    return true;
+}
+
+
 bool LSM6DS::getGyro(float *x, float *y, float *z) {
     char data[6];
+    int16_t raw;
+    float calc = _gyro_scale / 32768.0;
     tr_info("Getting gyro axis");
 
     if (!readRegister(REG_OUTX_L_G, data, 6)) {
@@ -128,21 +145,43 @@ bool LSM6DS::getGyro(float *x, float *y, float *z) {
     }
 
     if (x) {
-        *x = (((int16_t)data[1] << 8) | data[0]);
-        *x *= _gyro_scale;
-        *x /= 32768.0;
+        raw = (((int16_t)data[1] << 8) | data[0]);
+        *x = (raw * calc);
     }
 
     if (y) {
-        *y = (((int16_t)data[3] << 8) | data[2]);
-        *y *= _gyro_scale;
-        *y /= 32768.0;
+        raw = ((int16_t)data[3] << 8) | data[2];
+        *y = (raw * calc);
     }
 
     if (z) {
-        *z = (((int16_t)data[5] << 8) | data[4]);
-        *z *= _gyro_scale;
-        *z /= 32768.0;
+        raw = ((int16_t)data[5] << 8) | data[4];
+        *z = (raw * calc);
+    }
+
+    return true;
+}
+
+bool LSM6DS::getGyro(int16_t *x, int16_t *y, int16_t *z) {
+    char data[6];
+    int16_t raw;
+    tr_info("Getting gyro axis");
+
+    if (!readRegister(REG_OUTX_L_G, data, 6)) {
+        tr_error("Could not get gyro axis");
+        return false;
+    }
+
+    if (x) {
+        *x = ((int16_t)data[1] << 8) | data[0];
+    }
+
+    if (y) {
+        *y = ((int16_t)data[3] << 8) | data[2];
+    }
+
+    if (z) {
+        *z = ((int16_t)data[5] << 8) | data[4];
     }
 
     return true;

@@ -115,6 +115,16 @@ class LSM6DS {
     bool getAccel(float *x, float *y, float *z);
 
     /**
+     * @brief Get raw accelerometer axis
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return true if successful, otherwise false
+     */
+    bool getAccel(int16_t *x, int16_t *y, int16_t *z);
+
+    /**
      * @brief Get gyroscope axis
      *
      * @param x pitch
@@ -125,6 +135,16 @@ class LSM6DS {
     bool getGyro(float *x, float *y, float *z);
 
     /**
+     * @brief Get raw gyroscope axis
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return true if successful, otherwise false
+     */
+    bool getGyro(int16_t *x, int16_t *y, int16_t *z);
+
+    /**
      * @brief Perform SW device reset
      *
      * @return true if successful, otherwise false
@@ -133,12 +153,15 @@ class LSM6DS {
 
   protected:
     typedef enum {
+        REG_FUNC_CFG_ACCESS = 0x01,
+        REG_INT1_CTRL = 0x0D,
         REG_CTRL1_XL = 0x10,
         REG_CTRL2_G  = 0x11,
         REG_CTRL3_C = 0x12,
         REG_CTRL4_C = 0x13,
         REG_CTRL7_G = 0x16,
         REG_CTRL8_XL = 0x17,
+        REG_CTRL10_C = 0x19,
         REG_STATUS = 0x1E,
         REG_OUT_TEMP_L = 0x20,
         REG_OUT_TEMP_H = 0x21,

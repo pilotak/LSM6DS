@@ -33,7 +33,7 @@ using namespace std::chrono;
 
 #include "mbed-trace/mbed_trace.h"
 #ifndef TRACE_GROUP
-    #define TRACE_GROUP "6DOF"
+    #define TRACE_GROUP "LSM6"
 #endif
 
 #define LSM6DS_DEFAULT_ADDRESS (0x6B << 1)
@@ -56,7 +56,7 @@ class LSM6DS {
 
     typedef enum {
         GyroScale_250DPS = 0,
-        GyroScale_500PS,
+        GyroScale_500DPS,
         GyroScale_1000DPS,
         GyroScale_2000DPS
     } lsm6ds_gyro_scale_t;
@@ -73,9 +73,9 @@ class LSM6DS {
     /**
      * @brief Set the gyroscope mode
      *
-     * @param odr Output data rate
-     * @param scale Full-scale selection
-     * @param fs_125 Full-scale at 125 dps
+     * @param odr output data rate
+     * @param scale full-scale selection
+     * @param fs_125 full-scale at 125 dps
      * @return true if successful, otherwise false
      */
     bool setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale = GyroScale_250DPS, bool fs_125 = false);
@@ -90,7 +90,7 @@ class LSM6DS {
 
     /**
      * @brief Get status
-     * 
+     *
      * @param status place to put the reading
      * @return true if successful, otherwise false
      */
@@ -103,6 +103,26 @@ class LSM6DS {
      * @return true if successful, otherwise false
      */
     bool getTemperature(int16_t *raw_temp);
+
+    /**
+     * @brief Get accelerometer axis
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return true if successful, otherwise false
+     */
+    bool getAccel(float *x, float *y, float *z);
+
+    /**
+     * @brief Get gyroscope axis
+     *
+     * @param x pitch
+     * @param y roll
+     * @param z yaw
+     * @return true if successful, otherwise false
+     */
+    bool getGyro(float *x, float *y, float *z);
 
     /**
      * @brief Perform SW device reset
@@ -137,6 +157,8 @@ class LSM6DS {
         REG_WHO_AM_I = 0x0F,
     } lsm6ds_reg_t;
 
+    uint8_t _accel_scale = 4;
+
     /**
     * @brief Initialise
     *
@@ -164,6 +186,13 @@ class LSM6DS {
     bool setAccelMode(char odr_xl, char fs_xl, char bw_xl);
 
     /**
+     * @brief Update lib gyroscope scale
+     *
+     * @return true if successful, otherwise false
+     */
+    bool updateGyroScale(char *reg_ctrl2_g = nullptr);
+
+    /**
      * @brief Write register
      *
      * @param reg register address
@@ -187,6 +216,7 @@ class LSM6DS {
     I2C *_i2c;
     uint32_t _i2c_buffer[sizeof(I2C) / sizeof(uint32_t)];
     const int _address = LSM6DS_DEFAULT_ADDRESS;
+    uint16_t _gyro_scale = 250;
 
     /**
      * @brief Main I2C writer function

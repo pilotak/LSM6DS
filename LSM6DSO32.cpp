@@ -39,12 +39,52 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
         return false;
     }
 
-    return checkWhoAmI(LSM6DSO32_WHOAMI);
+    if (!checkWhoAmI(LSM6DSO32_WHOAMI)) {
+        return false;
+    }
+
+    if (!updateGyroScale()) {
+        return false;
+    }
+
+    return updateAccelScale();
 }
 
 bool LSM6DSO32::setAccelMode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
                              lsm6dso32_accel_highres_t high_res) {
-    return LSM6DS::setAccelMode((char)odr, (char)scale, (char)high_res);
+    if (!LSM6DS::setAccelMode((char)odr, (char)scale, (char)high_res)) {
+        return false;
+    }
+
+    return updateAccelScale();
+}
+
+bool LSM6DSO32::updateAccelScale() {
+    char data[1];
+
+    if (!readRegister(REG_CTRL1_XL, data)) {
+        return false;
+    }
+
+    switch ((data[0] >> 2) & 0b11) {
+        case AccelScale_4G:
+            _accel_scale = 4;
+            break;
+
+        case AccelScale_32G:
+            _accel_scale = 32;
+            break;
+
+        case AccelScale_8G:
+            _accel_scale = 8;
+            break;
+
+        case AccelScale_16G:
+            _accel_scale = 16;
+            break;
+    }
+
+    return true;
 }
 
 float LSM6DSO32::temperatureToC(int16_t raw) {

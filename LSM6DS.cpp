@@ -79,6 +79,75 @@ bool LSM6DS::getTemperature(int16_t *raw_temp) {
     return true;
 }
 
+bool LSM6DS::getAccel(float *x, float *y, float *z) {
+    char data[6];
+    float res;
+    tr_info("Getting accel axis");
+
+    if (!readRegister(REG_OUTX_L_XL, data, 6)) {
+        tr_error("Could not get accel axis");
+        return false;
+    }
+
+    if (x) {
+        res = ((int16_t)data[1] << 8) | data[0];
+        res *= _accel_scale;
+        res /= 32768.0;
+
+        *x = res;
+    }
+
+    if (y) {
+        res = ((int16_t)data[3] << 8) | data[2];
+        res *= _accel_scale;
+        res /= 32768.0;
+
+        *y = res;
+    }
+
+    if (z) {
+        res = ((int16_t)data[5] << 8) | data[4];
+        res *= _accel_scale;
+        res /= 32768.0;
+
+        *z = res;
+    }
+
+    tr_error("_accel_scale: %i", ((int16_t)data[1] << 8) | data[0]);
+
+    return true;
+}
+
+bool LSM6DS::getGyro(float *x, float *y, float *z) {
+    char data[6];
+    tr_info("Getting gyro axis");
+
+    if (!readRegister(REG_OUTX_L_G, data, 6)) {
+        tr_error("Could not get gyro axis");
+        return false;
+    }
+
+    if (x) {
+        *x = (((int16_t)data[1] << 8) | data[0]);
+        *x *= _gyro_scale;
+        *x /= 32768.0;
+    }
+
+    if (y) {
+        *y = (((int16_t)data[3] << 8) | data[2]);
+        *y *= _gyro_scale;
+        *y /= 32768.0;
+    }
+
+    if (z) {
+        *z = (((int16_t)data[5] << 8) | data[4]);
+        *z *= _gyro_scale;
+        *z /= 32768.0;
+    }
+
+    return true;
+}
+
 bool LSM6DS::reset() {
     char data[1];
 
@@ -138,7 +207,44 @@ bool LSM6DS::setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool 
         return false;
     }
 
-    return (data[0] == data[1]);
+    if (data[0] != data[1]) {
+        return false;
+    }
+
+    return updateGyroScale(data + 1);
+}
+
+bool LSM6DS::updateGyroScale(char *reg_ctrl2_g) {
+    char data[1];
+
+    if (reg_ctrl2_g == nullptr) {
+        if (!readRegister(REG_CTRL2_G, data)) {
+            return false;
+        }
+
+    } else {
+        memcpy(data, reg_ctrl2_g, 1);
+    }
+
+    switch ((data[0] >> 2) & 0b11) {
+        case GyroScale_250DPS:
+            _gyro_scale = 250;
+            break;
+
+        case GyroScale_500DPS:
+            _gyro_scale = 500;
+            break;
+
+        case GyroScale_1000DPS:
+            _gyro_scale = 1000;
+            break;
+
+        case GyroScale_2000DPS:
+            _gyro_scale = 2000;
+            break;
+    }
+
+    return true;
 }
 
 bool LSM6DS::checkWhoAmI(uint8_t id) {

@@ -83,7 +83,7 @@ class LSM6DS3: public LSM6DS {
 
     /**
      * @brief Convert raw temperature reading to °C
-     * 
+     *
      * @param raw reading from getTemperature()
      * @return temperature in °C
      */
@@ -91,11 +91,19 @@ class LSM6DS3: public LSM6DS {
 
     /**
      * @brief Convert raw temperature reading to °F
-     * 
+     *
      * @param raw reading from getTemperature()
      * @return temperature in °F
      */
     float temperatureToF(int16_t raw);
+
+  private:
+    /**
+     * @brief Update lib accelerometer scale
+     *
+     * @return true if successful, otherwise false
+     */
+    bool updateAccelScale();
 };
 
 #endif

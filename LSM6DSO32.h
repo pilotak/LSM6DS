@@ -95,6 +95,14 @@ class LSM6DSO32: public LSM6DS {
      * @return temperature in °F
      */
     float temperatureToF(int16_t raw);
+
+  private:
+    /**
+     * @brief Update lib accelerometer scale
+     *
+     * @return true if successful, otherwise false
+     */
+    bool updateAccelScale();
 };
 
 #endif

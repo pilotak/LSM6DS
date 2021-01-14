@@ -78,7 +78,23 @@ class LSM6DSO32: public LSM6DS {
      * @return true if successful, otherwise false
      */
     bool setAccelMode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale = AccelScale_4G,
-                        lsm6dso32_accel_highres_t high_res = AccelHighRes_Off);
+                      lsm6dso32_accel_highres_t high_res = AccelHighRes_Off);
+
+    /**
+     * @brief Convert raw temperature reading to °C
+     *
+     * @param raw reading from getTemperature()
+     * @return temperature in °C
+     */
+    float temperatureToC(int16_t raw);
+
+    /**
+     * @brief Convert raw temperature reading to °F
+     *
+     * @param raw reading from getTemperature()
+     * @return temperature in °F
+     */
+    float temperatureToF(int16_t raw);
 };
 
 #endif

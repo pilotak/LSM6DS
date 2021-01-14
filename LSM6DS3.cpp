@@ -57,3 +57,11 @@ bool LSM6DS3::setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale,
 
     return LSM6DS::setAccelMode((char)odr, (char)scale, (char)filter);
 }
+
+float LSM6DS3::temperatureToC(int16_t raw) {
+    return ((float)raw / 16.0) + 25.0;
+}
+
+float LSM6DS3::temperatureToF(int16_t raw) {
+    return (temperatureToC(raw) * 9 / 5 + 32);
+}

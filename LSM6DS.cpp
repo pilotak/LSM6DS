@@ -60,29 +60,20 @@ bool LSM6DS::getStatus(char *status) {
         return false;
     }
 
-    tr_info("New data - accel: %u, gyro: %u, temp: %u", *status & 0b1, *status & 0b10, *status & 0b100);
+    tr_info("New data - accel: %u, gyro: %u, temp: %u", *status & 0b1, (*status & 0b10) >> 1, (*status & 0b100) >> 2);
     return true;
 }
 
-bool LSM6DS::getTemperature(uint16_t *raw_temp) {
+bool LSM6DS::getTemperature(int16_t *raw_temp) {
     char data[2];
 
-    if (!getStatus(data)) {
-        return false;
-    }
-
-    if (!readRegister(REG_OUTX_L_G, data, 2)) {
+    if (!readRegister(REG_OUT_TEMP_L, data, 2)) {
         tr_error("Could not get temperature");
         return false;
     }
 
     if (raw_temp) {
-        *raw_temp = (data[1] << 8) | data[0];
-
-        if (*raw_temp == 0) {
-            tr_error("Invalid temperature");
-            return false;
-        }
+        *raw_temp = ((int16_t)data[1] << 8) | data[0];
     }
 
     return true;

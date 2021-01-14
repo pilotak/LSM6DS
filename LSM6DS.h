@@ -99,10 +99,10 @@ class LSM6DS {
     /**
      * @brief Get the chip temperature
      *
-     * @param raw_temp place to put the reading, it needs to be converted (raw_temp / 256) + 25;
+     * @param raw_temp place to put the reading, result in LSB
      * @return true if successful, otherwise false
      */
-    bool getTemperature(uint16_t *raw_temp);
+    bool getTemperature(int16_t *raw_temp);
 
     /**
      * @brief Perform SW device reset

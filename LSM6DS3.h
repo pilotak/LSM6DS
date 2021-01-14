@@ -79,7 +79,23 @@ class LSM6DS3: public LSM6DS {
      * @return true if successful, otherwise false
      */
     bool setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
-                        lsm6ds3_accel_filter_t filter = AccelFilter_400Hz);
+                      lsm6ds3_accel_filter_t filter = AccelFilter_400Hz);
+
+    /**
+     * @brief Convert raw temperature reading to °C
+     * 
+     * @param raw reading from getTemperature()
+     * @return temperature in °C
+     */
+    float temperatureToC(int16_t raw);
+
+    /**
+     * @brief Convert raw temperature reading to °F
+     * 
+     * @param raw reading from getTemperature()
+     * @return temperature in °F
+     */
+    float temperatureToF(int16_t raw);
 };
 
 #endif

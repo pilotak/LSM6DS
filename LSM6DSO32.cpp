@@ -43,6 +43,14 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
 }
 
 bool LSM6DSO32::setAccelMode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
-                               lsm6dso32_accel_highres_t high_res) {
+                             lsm6dso32_accel_highres_t high_res) {
     return LSM6DS::setAccelMode((char)odr, (char)scale, (char)high_res);
+}
+
+float LSM6DSO32::temperatureToC(int16_t raw) {
+    return ((float)raw / 256.0) + 25.0;
+}
+
+float LSM6DSO32::temperatureToF(int16_t raw) {
+    return (temperatureToC(raw) * 9 / 5 + 32);
 }

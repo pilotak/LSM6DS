@@ -159,6 +159,7 @@ class LSM6DS {
         REG_CTRL2_G  = 0x11,
         REG_CTRL3_C = 0x12,
         REG_CTRL4_C = 0x13,
+        REG_SM_THS = 0x13,
         REG_CTRL7_G = 0x16,
         REG_CTRL8_XL = 0x17,
         REG_CTRL10_C = 0x19,

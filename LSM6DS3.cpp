@@ -98,9 +98,30 @@ bool LSM6DS3::updateAccelScale() {
     return true;
 }
 
-bool LSM6DS3::significantMovement(bool enable) {
-    char data[2];
+bool LSM6DS3::significantMovement(bool enable, char threshold) {
+    char data[1];
 
+    if (enable) {
+        data[0] = 0b10000000;
+
+        if (!writeRegister(REG_FUNC_CFG_ACCESS, data)) {
+            return false;
+        }
+
+        data[0] = threshold;
+
+        if (!writeRegister(REG_SM_THS, data)) {
+            return false;
+        }
+
+        data[0] = 0;
+
+        if (!writeRegister(REG_FUNC_CFG_ACCESS, data)) {
+            return false;
+        }
+    }
+
+    // enable significant motion detection
     if (!readRegister(REG_CTRL10_C, data)) {
         return false;
     }
@@ -113,29 +134,6 @@ bool LSM6DS3::significantMovement(bool enable) {
         return false;
     }
 
-    if (!readRegister(REG_CTRL10_C, data + 1)) {
-        return false;
-    }
-
-    if (data[0] != data[1]) {
-        return false;
-    }
-
-    /*data[0] &= 0b10000000;
-    data[0] |= (char)enable << 7; // FUNC_CFG_EN
-
-    if (!writeRegister(REG_FUNC_CFG_ACCESS, data)) {
-        return false;
-    }
-
-    if (!readRegister(REG_FUNC_CFG_ACCESS, data + 1)) {
-        return false;
-    }
-
-    if (data[0] != data[1]) {
-        return false;
-    }*/
-
     // enable interrupt
     if (!readRegister(REG_INT1_CTRL, data)) {
         return false;
@@ -145,14 +143,6 @@ bool LSM6DS3::significantMovement(bool enable) {
     data[0] |= (char)enable << 6; // INT1_SIGN_MO
 
     if (!writeRegister(REG_INT1_CTRL, data)) {
-        return false;
-    }
-
-    if (!readRegister(REG_INT1_CTRL, data + 1)) {
-        return false;
-    }
-
-    if (data[0] != data[1]) {
         return false;
     }
 

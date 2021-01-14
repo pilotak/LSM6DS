@@ -81,7 +81,7 @@ class LSM6DS3: public LSM6DS {
     bool setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
                       lsm6ds3_accel_filter_t filter = AccelFilter_400Hz);
 
-    bool significantMovement(bool enable);
+    bool significantMovement(bool enable, char threshold = 6);
 
     /**
      * @brief Convert raw temperature reading to °C

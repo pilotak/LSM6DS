@@ -78,6 +78,11 @@ bool LSM6DS::getTemperature(uint16_t *raw_temp) {
 
     if (raw_temp) {
         *raw_temp = (data[1] << 8) | data[0];
+
+        if (*raw_temp == 0) {
+            tr_error("Invalid temperature");
+            return false;
+        }
     }
 
     return true;
@@ -106,7 +111,7 @@ bool LSM6DS::init(I2C *i2c_obj) {
 }
 
 bool LSM6DS::setAccelMode(char odr_xl, char fs_xl, char bw_xl) {
-    char data[1];
+    char data[2];
 
     tr_info("Setting new accelerometer mode");
 
@@ -114,11 +119,19 @@ bool LSM6DS::setAccelMode(char odr_xl, char fs_xl, char bw_xl) {
     data[0] |= ((fs_xl & 0b11) << 2);
     data[0] |= ((odr_xl & 0b1111) << 4);
 
-    return writeRegister(REG_CTRL1_XL, data);
+    if (!writeRegister(REG_CTRL1_XL, data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_CTRL1_XL, data + 1)) {
+        return false;
+    }
+
+    return (data[0] == data[1]);
 }
 
 bool LSM6DS::setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
-    char data[1];
+    char data[2];
 
     tr_info("Setting new gyroscope mode");
 
@@ -126,11 +139,20 @@ bool LSM6DS::setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool 
     data[0] |= ((char)(scale & 0b11) << 2);
     data[0] |= (((char)odr & 0b1111) << 4);
 
-    return writeRegister(REG_CTRL2_G, data);
+    if (!writeRegister(REG_CTRL2_G, data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_CTRL2_G, data + 1)) {
+        return false;
+    }
+
+    return (data[0] == data[1]);
 }
 
 bool LSM6DS::checkWhoAmI(uint8_t id) {
     char data[1];
+    tr_info("Checking device ID");
 
     if (!readRegister(REG_WHO_AM_I, data, sizeof(data))) {
         return false;
@@ -140,7 +162,7 @@ bool LSM6DS::checkWhoAmI(uint8_t id) {
 }
 
 bool LSM6DS::writeRegister(lsm6ds_reg_t reg, const char *data, size_t len) {
-    tr_debug("Sending data[%u] to reg: %02X", len, reg);
+    tr_debug("Write register: %02X", reg);
 
     if (data == nullptr || len == 0) {
         return false;
@@ -158,7 +180,7 @@ bool LSM6DS::writeRegister(lsm6ds_reg_t reg, const char *data, size_t len) {
 
     _i2c->lock();
 
-    if (!write(data, len + 1)) {
+    if (!write(d, len + 1)) {
         tr_error("Error writing data");
         goto ERROR;
     }
@@ -172,7 +194,7 @@ ERROR:
 }
 
 bool LSM6DS::readRegister(lsm6ds_reg_t reg, char *data, size_t len) {
-    tr_debug("Getting data[%u] from reg: %02X", len, reg);
+    tr_debug("Read register: %02X", reg);
 
     if (data == nullptr || len == 0) {
         return false;

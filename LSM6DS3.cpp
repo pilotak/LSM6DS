@@ -38,22 +38,22 @@ bool LSM6DS3::init(I2C *i2c_obj) {
         return false;
     }
 
-    return check_who_am_i(LSM6DS3_WHOAMI);
+    return checkWhoAmI(LSM6DS3_WHOAMI);
 }
 
-bool LSM6DS3::set_accel_mode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, lsm6ds3_accel_filter_t filter) {
+bool LSM6DS3::setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, lsm6ds3_accel_filter_t filter) {
     char data[1];
 
     // set XL_BW_SCAL_ODR=1 otherwise out new filter will no be used
-    if (!readRegiter(REG_CTRL4_C, data, 1)) {
+    if (!readRegister(REG_CTRL4_C, data)) {
         return false;
     }
 
     data[0] |= 0b10000000;
 
-    if (!writeRegiter(REG_CTRL4_C, data, 1)) {
+    if (!writeRegister(REG_CTRL4_C, data)) {
         return false;
     }
 
-    return LSM6DS::set_accel_mode((char)odr, (char)scale, (char)filter);
+    return LSM6DS::setAccelMode((char)odr, (char)scale, (char)filter);
 }

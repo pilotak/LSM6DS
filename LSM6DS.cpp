@@ -41,29 +41,58 @@ LSM6DS::~LSM6DS(void) {
     }
 }
 
-bool LSM6DS::set_int_mode(lsm6ds_int_mode_t mode) {
+bool LSM6DS::setIntMode(lsm6ds_int_mode_t mode) {
     char data[1];
 
-    if (!readRegiter(REG_CTRL3_C, data, 1)) {
+    if (!readRegister(REG_CTRL3_C, data)) {
         return false;
     }
 
     data[0] &= ~0b00001000; // clear
     data[0] |= ((char)mode & 0b1) << 4;
 
-    return writeRegiter(REG_CTRL3_C, data, 1);
+    return writeRegister(REG_CTRL3_C, data);
+}
+
+bool LSM6DS::getStatus(char *status) {
+    if (!readRegister(REG_STATUS, status, 1)) {
+        tr_error("Could not get status");
+        return false;
+    }
+
+    tr_info("New data - accel: %u, gyro: %u, temp: %u", *status & 0b1, *status & 0b10, *status & 0b100);
+    return true;
+}
+
+bool LSM6DS::getTemperature(uint16_t *raw_temp) {
+    char data[2];
+
+    if (!getStatus(data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_OUTX_L_G, data, 2)) {
+        tr_error("Could not get temperature");
+        return false;
+    }
+
+    if (raw_temp) {
+        *raw_temp = (data[1] << 8) | data[0];
+    }
+
+    return true;
 }
 
 bool LSM6DS::reset() {
     char data[1];
 
-    if (!readRegiter(REG_CTRL3_C, data, 1)) {
+    if (!readRegister(REG_CTRL3_C, data)) {
         return false;
     }
 
     data[0] |= 1;
 
-    return writeRegiter(REG_CTRL3_C, data, 1);
+    return writeRegister(REG_CTRL3_C, data);
 }
 
 bool LSM6DS::init(I2C *i2c_obj) {
@@ -76,7 +105,7 @@ bool LSM6DS::init(I2C *i2c_obj) {
     return true;
 }
 
-bool LSM6DS::set_accel_mode(char odr_xl, char fs_xl, char bw_xl) {
+bool LSM6DS::setAccelMode(char odr_xl, char fs_xl, char bw_xl) {
     char data[1];
 
     tr_info("Setting new accelerometer mode");
@@ -85,10 +114,10 @@ bool LSM6DS::set_accel_mode(char odr_xl, char fs_xl, char bw_xl) {
     data[0] |= ((fs_xl & 0b11) << 2);
     data[0] |= ((odr_xl & 0b1111) << 4);
 
-    return writeRegiter(REG_CTRL1_XL, data, 1);
+    return writeRegister(REG_CTRL1_XL, data);
 }
 
-bool LSM6DS::set_gyro_mode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
+bool LSM6DS::setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
     char data[1];
 
     tr_info("Setting new gyroscope mode");
@@ -97,20 +126,20 @@ bool LSM6DS::set_gyro_mode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, boo
     data[0] |= ((char)(scale & 0b11) << 2);
     data[0] |= (((char)odr & 0b1111) << 4);
 
-    return writeRegiter(REG_CTRL2_G, data, 1);
+    return writeRegister(REG_CTRL2_G, data);
 }
 
-bool LSM6DS::check_who_am_i(uint8_t id) {
+bool LSM6DS::checkWhoAmI(uint8_t id) {
     char data[1];
 
-    if (!readRegiter(REG_WHO_AM_I, data, sizeof(data))) {
+    if (!readRegister(REG_WHO_AM_I, data, sizeof(data))) {
         return false;
     }
 
     return (data[0] == id);
 }
 
-bool LSM6DS::writeRegiter(lsm6ds_reg_t reg, const char *data, size_t len) {
+bool LSM6DS::writeRegister(lsm6ds_reg_t reg, const char *data, size_t len) {
     tr_debug("Sending data[%u] to reg: %02X", len, reg);
 
     if (data == nullptr || len == 0) {
@@ -142,7 +171,7 @@ ERROR:
     return false;
 }
 
-bool LSM6DS::readRegiter(lsm6ds_reg_t reg, char *data, size_t len) {
+bool LSM6DS::readRegister(lsm6ds_reg_t reg, char *data, size_t len) {
     tr_debug("Getting data[%u] from reg: %02X", len, reg);
 
     if (data == nullptr || len == 0) {

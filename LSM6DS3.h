@@ -78,7 +78,7 @@ class LSM6DS3: public LSM6DS {
      * @param filter Anti-aliasing filter bandwidth selection
      * @return true if successful, otherwise false
      */
-    bool set_accel_mode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
+    bool setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
                         lsm6ds3_accel_filter_t filter = AccelFilter_400Hz);
 };
 

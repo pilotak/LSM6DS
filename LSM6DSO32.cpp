@@ -39,10 +39,10 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
         return false;
     }
 
-    return check_who_am_i(LSM6DSO32_WHOAMI);
+    return checkWhoAmI(LSM6DSO32_WHOAMI);
 }
 
-bool LSM6DSO32::set_accel_mode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
+bool LSM6DSO32::setAccelMode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
                                lsm6dso32_accel_highres_t high_res) {
-    return LSM6DS::set_accel_mode((char)odr, (char)scale, (char)high_res);
+    return LSM6DS::setAccelMode((char)odr, (char)scale, (char)high_res);
 }

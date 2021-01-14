@@ -78,7 +78,7 @@ class LSM6DS {
      * @param fs_125 Full-scale at 125 dps
      * @return true if successful, otherwise false
      */
-    bool set_gyro_mode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale = GyroScale_250DPS, bool fs_125 = false);
+    bool setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale = GyroScale_250DPS, bool fs_125 = false);
 
     /**
      * @brief Set the mode of INT1 and INT2 pins
@@ -86,7 +86,23 @@ class LSM6DS {
      * @param mode
      * @return true if successful, otherwise false
      */
-    bool set_int_mode(lsm6ds_int_mode_t mode);
+    bool setIntMode(lsm6ds_int_mode_t mode);
+
+    /**
+     * @brief Get status
+     * 
+     * @param status place to put the reading
+     * @return true if successful, otherwise false
+     */
+    bool getStatus(char *status);
+
+    /**
+     * @brief Get the chip temperature
+     *
+     * @param raw_temp place to put the reading, it needs to be converted (raw_temp / 256) + 25;
+     * @return true if successful, otherwise false
+     */
+    bool getTemperature(uint16_t *raw_temp);
 
     /**
      * @brief Perform SW device reset
@@ -101,6 +117,23 @@ class LSM6DS {
         REG_CTRL2_G  = 0x11,
         REG_CTRL3_C = 0x12,
         REG_CTRL4_C = 0x13,
+        REG_CTRL7_G = 0x16,
+        REG_CTRL8_XL = 0x17,
+        REG_STATUS = 0x1E,
+        REG_OUT_TEMP_L = 0x20,
+        REG_OUT_TEMP_H = 0x21,
+        REG_OUTX_L_G = 0x22,
+        REG_OUTX_H_G = 0x23,
+        REG_OUTY_L_G = 0x24,
+        REG_OUTY_H_G = 0x25,
+        REG_OUTZ_L_G = 0x26,
+        REG_OUTZ_H_G = 0x27,
+        REG_OUTX_L_XL = 0x28,
+        REG_OUTX_H_XL = 0x29,
+        REG_OUTY_L_XL = 0x2A,
+        REG_OUTY_H_XL = 0x2B,
+        REG_OUTZ_L_XL = 0x2C,
+        REG_OUTZ_H_XL = 0x2D,
         REG_WHO_AM_I = 0x0F,
     } lsm6ds_reg_t;
 
@@ -118,7 +151,7 @@ class LSM6DS {
      * @param id expected id
      * @return true if successful, otherwise false
      */
-    bool check_who_am_i(uint8_t id);
+    bool checkWhoAmI(uint8_t id);
 
     /**
      * @brief Set the accelerometer mode
@@ -128,7 +161,7 @@ class LSM6DS {
      * @param bw_xl Filter selection
      * @return true if successful, otherwise false
      */
-    bool set_accel_mode(char odr_xl, char fs_xl, char bw_xl);
+    bool setAccelMode(char odr_xl, char fs_xl, char bw_xl);
 
     /**
      * @brief Write register
@@ -138,7 +171,7 @@ class LSM6DS {
      * @param len the size of the data to be written
      * @return true if successful, otherwise false
      */
-    bool writeRegiter(lsm6ds_reg_t reg, const char *data, size_t len);
+    bool writeRegister(lsm6ds_reg_t reg, const char *data, size_t len = 1);
 
     /**
      * @brief Read register
@@ -148,7 +181,7 @@ class LSM6DS {
      * @param len the size of the data to be read
      * @return true if successful, otherwise false
      */
-    bool readRegiter(lsm6ds_reg_t reg, char *data, size_t len);
+    bool readRegister(lsm6ds_reg_t reg, char *data, size_t len = 1);
 
   private:
     I2C *_i2c;

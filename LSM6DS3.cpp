@@ -52,7 +52,7 @@ bool LSM6DS3::init(I2C *i2c_obj) {
 bool LSM6DS3::setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, lsm6ds3_accel_filter_t filter) {
     char data[1];
 
-    // set XL_BW_SCAL_ODR=1 otherwise out new filter will no be used
+    // set XL_BW_SCAL_ODR=1 otherwise out new filter will not be used
     if (!readRegister(REG_CTRL4_C, data)) {
         return false;
     }

@@ -71,14 +71,14 @@ class LSM6DS {
     virtual ~LSM6DS(void);
 
     /**
-     * @brief Set the gyroscope mode
+     * @brief Setup the gyroscope
      *
      * @param odr output data rate
      * @param scale full-scale selection
      * @param fs_125 full-scale at 125 dps
      * @return true if successful, otherwise false
      */
-    bool setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale = GyroScale_250DPS, bool fs_125 = false);
+    bool setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale = GyroScale_250DPS, bool fs_125 = false);
 
     /**
      * @brief Set the mode of INT1 and INT2 pins
@@ -200,14 +200,14 @@ class LSM6DS {
     bool checkWhoAmI(uint8_t id);
 
     /**
-     * @brief Set the accelerometer mode
+     * @brief Setup the accelerometer
      *
      * @param odr_xl Output data rate and power mode selection
      * @param fs_xl Full-scale selection
      * @param bw_xl Filter selection
      * @return true if successful, otherwise false
      */
-    bool setAccelMode(char odr_xl, char fs_xl, char bw_xl);
+    bool setupAccel(char odr_xl, char fs_xl, char bw_xl);
 
     /**
      * @brief Update lib gyroscope scale

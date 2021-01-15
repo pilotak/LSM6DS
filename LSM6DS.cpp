@@ -209,7 +209,7 @@ bool LSM6DS::init(I2C *i2c_obj) {
     return true;
 }
 
-bool LSM6DS::setAccelMode(char odr_xl, char fs_xl, char bw_xl) {
+bool LSM6DS::setupAccel(char odr_xl, char fs_xl, char bw_xl) {
     char data[2];
 
     tr_info("Setting new accelerometer mode");
@@ -229,7 +229,7 @@ bool LSM6DS::setAccelMode(char odr_xl, char fs_xl, char bw_xl) {
     return (data[0] == data[1]);
 }
 
-bool LSM6DS::setGyroMode(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
+bool LSM6DS::setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
     char data[2];
 
     tr_info("Setting new gyroscope mode");

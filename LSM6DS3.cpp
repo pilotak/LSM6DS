@@ -42,6 +42,11 @@ bool LSM6DS3::init(I2C *i2c_obj) {
         return false;
     }
 
+    // as we don't know current setting
+    if (!reset()) {
+        return false;
+    }
+
     if (!updateGyroScale()) {
         return false;
     }
@@ -49,7 +54,7 @@ bool LSM6DS3::init(I2C *i2c_obj) {
     return updateAccelScale();
 }
 
-bool LSM6DS3::setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, lsm6ds3_accel_filter_t filter) {
+bool LSM6DS3::setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, lsm6ds3_accel_aa_filter_t filter) {
     char data[1];
 
     // set XL_BW_SCAL_ODR=1 otherwise out new filter will not be used
@@ -63,11 +68,42 @@ bool LSM6DS3::setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale,
         return false;
     }
 
-    if (!LSM6DS::setAccelMode((char)odr, (char)scale, (char)filter)) {
+    if (!LSM6DS::setupAccel((char)odr, (char)scale, (char)filter)) {
         return false;
     }
 
     return updateAccelScale();
+}
+
+bool LSM6DS3::setAccelMode(lsm6ds3_lhpf_t filter, bool lp_6d) {
+    char data[1];
+
+    if (!readRegister(REG_CTRL8_XL, data)) {
+        return false;
+    }
+
+    if (filter == AccelFilter_Off) {
+        data[0] &= ~0b00000100; // HP_SLOPE_XL_EN
+
+    } else {
+        data[0] |= 0b00000100; // HP_SLOPE_XL_EN
+
+        if (filter == AccelLPF2) {
+            data[0] |= 0b10000000; // LPF2_XL_EN
+
+        } else {
+            data[0] &= ~0b11100000; // LPF2_XL_EN & HPCF_XL
+            data[0] |= ((char)filter << 5); // HPCF_XL
+        }
+    }
+
+    if (filter == AccelFilter_Off || filter == AccelLPF2) {
+        // LOW_PASS_ON_6D
+        data[0] &= ~0b00000001;
+        data[0] |= lp_6d;
+    }
+
+    return writeRegister(REG_CTRL8_XL, data);
 }
 
 bool LSM6DS3::updateAccelScale() {

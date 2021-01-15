@@ -43,6 +43,11 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
         return false;
     }
 
+    // as we don't know current setting
+    if (!reset()) {
+        return false;
+    }
+
     if (!updateGyroScale()) {
         return false;
     }
@@ -50,9 +55,9 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
     return updateAccelScale();
 }
 
-bool LSM6DSO32::setAccelMode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
-                             lsm6dso32_accel_highres_t high_res) {
-    if (!LSM6DS::setAccelMode((char)odr, (char)scale, (char)high_res)) {
+bool LSM6DSO32::setupAccel(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
+                         lsm6dso32_accel_highres_t high_res) {
+    if (!LSM6DS::setupAccel((char)odr, (char)scale, (char)high_res)) {
         return false;
     }
 

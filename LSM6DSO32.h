@@ -70,14 +70,14 @@ class LSM6DSO32: public LSM6DS {
     bool init(I2C *i2c_obj = nullptr);
 
     /**
-     * @brief Set the accelerometer mode
+     * @brief Setup the accelerometer
      *
      * @param odr Output data rate and power mode selection
      * @param scale Full-scale selection
      * @param filter High-resolution selection
      * @return true if successful, otherwise false
      */
-    bool setAccelMode(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale = AccelScale_4G,
+    bool setupAccel(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale = AccelScale_4G,
                       lsm6dso32_accel_highres_t high_res = AccelHighRes_Off);
 
     /**

@@ -52,12 +52,23 @@ class LSM6DS3: public LSM6DS {
         AccelScale_8G
     } lsm6ds3_accel_scale_t;
 
+    // Anti-aliasing filter
     typedef enum {
-        AccelFilter_400Hz = 0,
-        AccelFilter_200Hz,
-        AccelFilter_100Hz,
-        AccelFilter_50Hz
-    } lsm6ds3_accel_filter_t;
+        AccelAAFilter_400Hz = 0,
+        AccelAAFilter_200Hz,
+        AccelAAFilter_100Hz,
+        AccelAAFilter_50Hz
+    } lsm6ds3_accel_aa_filter_t;
+
+    // Slope, High-pass & Low-pass 2 filter
+    typedef enum {
+        AccelSlopeFilter = 0,
+        AccelHPF_100,
+        AccelHPF_9,
+        AccelHPF_400,
+        AccelLPF2,
+        AccelFilter_Off,
+    } lsm6ds3_lhpf_t;
 
     LSM6DS3(int address = LSM6DS_DEFAULT_ADDRESS);
     LSM6DS3(PinName sda, PinName scl, int address = LSM6DS_DEFAULT_ADDRESS, uint32_t frequency = 400000);
@@ -71,15 +82,17 @@ class LSM6DS3: public LSM6DS {
     bool init(I2C *i2c_obj = nullptr);
 
     /**
-     * @brief Set the accelerometer mode
+     * @brief Setup the accelerometer
      *
      * @param odr Output data rate and power mode selection
      * @param scale Full-scale selection
      * @param filter Anti-aliasing filter bandwidth selection
      * @return true if successful, otherwise false
      */
-    bool setAccelMode(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
-                      lsm6ds3_accel_filter_t filter = AccelFilter_400Hz);
+    bool setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
+                      lsm6ds3_accel_aa_filter_t filter = AccelAAFilter_400Hz);
+
+    bool setAccelMode(lsm6ds3_lhpf_t filter, bool lp_6d);
 
     bool significantMovement(bool enable, char threshold = 6);
 

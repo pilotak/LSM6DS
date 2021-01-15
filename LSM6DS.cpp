@@ -64,6 +64,15 @@ bool LSM6DS::getStatus(char *status) {
     return true;
 }
 
+
+bool LSM6DS::setINT1(char reg) {
+    return writeRegister(REG_INT1_CTRL, &reg);
+}
+
+bool LSM6DS::setINT2(char reg) {
+    return writeRegister(REG_INT2_CTRL, &reg);
+}
+
 bool LSM6DS::getTemperature(int16_t *raw_temp) {
     char data[2];
 
@@ -164,7 +173,6 @@ bool LSM6DS::getGyro(float *x, float *y, float *z) {
 
 bool LSM6DS::getGyro(int16_t *x, int16_t *y, int16_t *z) {
     char data[6];
-    int16_t raw;
     tr_info("Getting gyro axis");
 
     if (!readRegister(REG_OUTX_L_G, data, 6)) {
@@ -251,6 +259,37 @@ bool LSM6DS::setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs
     }
 
     return updateGyroScale(data + 1);
+}
+
+bool LSM6DS::setGyroMode(bool high_performance) {
+    char data[1];
+
+    if (!readRegister(REG_CTRL7_G, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b10000000;
+    data[0] |= (char)(!high_performance) << 7;
+
+    return writeRegister(REG_CTRL7_G, data);
+}
+
+bool LSM6DS::setGyroFilter(char filter, bool enable) {
+    char data[1];
+
+    if (!readRegister(REG_CTRL7_G, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b01000000; // HP_G_EN
+
+    if (enable) {
+        data[0] |= 0b01000000; // HP_G_EN
+        data[0] &= ~0b00110000;
+        data[0] |= ((filter & 0b11) << 4); // HPCF_G
+    }
+
+    return writeRegister(REG_CTRL7_G, data);
 }
 
 bool LSM6DS::updateGyroScale(char *reg_ctrl2_g) {

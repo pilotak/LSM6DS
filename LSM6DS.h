@@ -81,6 +81,30 @@ class LSM6DS {
     bool setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale = GyroScale_250DPS, bool fs_125 = false);
 
     /**
+     * @brief Set high-performance operating mode for gyroscope.
+     *
+     * @param high_performance
+     * @return true if successful, otherwise false
+     */
+    bool setGyroMode(bool high_performance);
+
+    /**
+     * @brief INT1 pin control
+     *
+     * @param reg INT1_CTRL register
+     * @return true if successful, otherwise false
+     */
+    bool setINT1(char reg);
+
+    /**
+    * @brief INT2 pin control
+    *
+    * @param reg INT2_CTRL register
+    * @return true if successful, otherwise false
+    */
+    bool setINT2(char reg);
+
+    /**
      * @brief Set the mode of INT1 and INT2 pins
      *
      * @param mode
@@ -155,6 +179,7 @@ class LSM6DS {
     typedef enum {
         REG_FUNC_CFG_ACCESS = 0x01,
         REG_INT1_CTRL = 0x0D,
+        REG_INT2_CTRL = 0x0E,
         REG_CTRL1_XL = 0x10,
         REG_CTRL2_G  = 0x11,
         REG_CTRL3_C = 0x12,
@@ -202,12 +227,21 @@ class LSM6DS {
     /**
      * @brief Setup the accelerometer
      *
-     * @param odr_xl Output data rate and power mode selection
-     * @param fs_xl Full-scale selection
-     * @param bw_xl Filter selection
+     * @param odr_xl output data rate and power mode selection
+     * @param fs_xl full-scale selection
+     * @param bw_xl filter selection
      * @return true if successful, otherwise false
      */
     bool setupAccel(char odr_xl, char fs_xl, char bw_xl);
+
+    /**
+     * @brief Set high-pass filter for gyroscope
+     *
+     * @param filter filter type
+     * @param enable
+     * @return true if successful, otherwise false
+     */
+    bool setGyroFilter(char filter, bool enable);
 
     /**
      * @brief Update lib gyroscope scale

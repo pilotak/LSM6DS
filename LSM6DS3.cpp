@@ -39,6 +39,7 @@ bool LSM6DS3::init(I2C *i2c_obj) {
     }
 
     if (!checkWhoAmI(LSM6DS3_WHOAMI)) {
+        tr_error("Different chip ID");
         return false;
     }
 
@@ -75,7 +76,7 @@ bool LSM6DS3::setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, l
     return updateAccelScale();
 }
 
-bool LSM6DS3::setAccelMode(lsm6ds3_lhpf_t filter, bool lp_6d) {
+bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
     char data[1];
 
     if (!readRegister(REG_CTRL8_XL, data)) {
@@ -97,13 +98,21 @@ bool LSM6DS3::setAccelMode(lsm6ds3_lhpf_t filter, bool lp_6d) {
         }
     }
 
+    data[0] &= ~0b00000001; // LOW_PASS_ON_6D
+
     if (filter == AccelFilter_Off || filter == AccelLPF2) {
-        // LOW_PASS_ON_6D
-        data[0] &= ~0b00000001;
+        tr_info("Enabling low-pass filter on 6D");
         data[0] |= lp_6d;
+
+    } else if (lp_6d) {
+        tr_error("LPF on 6D needs AccelLPF2 filter set or AccelFilter_Off");
     }
 
     return writeRegister(REG_CTRL8_XL, data);
+}
+
+bool LSM6DS3::setGyroFilter(lsm6ds3_gyro_hpf_t filter) {
+    return LSM6DS::setGyroFilter((char)filter, (filter == GyroHPF_Off));
 }
 
 bool LSM6DS3::updateAccelScale() {
@@ -134,7 +143,7 @@ bool LSM6DS3::updateAccelScale() {
     return true;
 }
 
-bool LSM6DS3::significantMovement(bool enable, char threshold) {
+bool LSM6DS3::significantMotion(bool enable, char threshold) {
     char data[1];
 
     if (enable) {
@@ -170,17 +179,7 @@ bool LSM6DS3::significantMovement(bool enable, char threshold) {
         return false;
     }
 
-    // enable interrupt
-    if (!readRegister(REG_INT1_CTRL, data)) {
-        return false;
-    }
 
-    data[0] &= ~0b01000000;
-    data[0] |= (char)enable << 6; // INT1_SIGN_MO
-
-    if (!writeRegister(REG_INT1_CTRL, data)) {
-        return false;
-    }
 
     return true;
 }

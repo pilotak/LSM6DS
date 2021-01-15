@@ -60,15 +60,24 @@ class LSM6DS3: public LSM6DS {
         AccelAAFilter_50Hz
     } lsm6ds3_accel_aa_filter_t;
 
-    // Slope, High-pass & Low-pass 2 filter
+    // Slope, High-pass & Low-pass2 filter
     typedef enum {
         AccelSlopeFilter = 0,
-        AccelHPF_100,
-        AccelHPF_9,
-        AccelHPF_400,
+        AccelHPF_1, // ODR/100
+        AccelHPF_2, // ODR/9
+        AccelHPF_3, // ODR/400
         AccelLPF2,
         AccelFilter_Off,
-    } lsm6ds3_lhpf_t;
+    } lsm6ds3_accel_lhpf_t;
+
+    // High-pass filter cutoff frequency
+    typedef enum {
+        GyroHPF_0 = 0, // 0.0081 Hz
+        GyroHPF_1, // 0.0324 Hz
+        GyroHPF_2, // 2.07 Hz
+        GyroHPF_3, // 16.32 Hz
+        GyroHPF_Off,
+    } lsm6ds3_gyro_hpf_t;
 
     LSM6DS3(int address = LSM6DS_DEFAULT_ADDRESS);
     LSM6DS3(PinName sda, PinName scl, int address = LSM6DS_DEFAULT_ADDRESS, uint32_t frequency = 400000);
@@ -84,17 +93,41 @@ class LSM6DS3: public LSM6DS {
     /**
      * @brief Setup the accelerometer
      *
-     * @param odr Output data rate and power mode selection
-     * @param scale Full-scale selection
-     * @param filter Anti-aliasing filter bandwidth selection
+     * @param odr output data rate and power mode selection
+     * @param scale full-scale selection
+     * @param filter nti-aliasing filter bandwidth selection
      * @return true if successful, otherwise false
      */
     bool setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
-                      lsm6ds3_accel_aa_filter_t filter = AccelAAFilter_400Hz);
+                    lsm6ds3_accel_aa_filter_t filter = AccelAAFilter_400Hz);
 
-    bool setAccelMode(lsm6ds3_lhpf_t filter, bool lp_6d);
 
-    bool significantMovement(bool enable, char threshold = 6);
+    /**
+     * @brief Set Slope, high-pass or low-pass2 filter for accelerometer
+     *
+     * @param filter filter type
+     * @param lp_6d enable low-pass filter for 6D (only if filter is off or LPF2 is set)
+     * @return true if successful, otherwise false
+     */
+    bool setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d);
+
+    /**
+     * @brief Set high-pass filter for gyroscope
+     *
+     * @param filter filter type
+     * @return true if successful, otherwise false
+     */
+    bool setGyroFilter(lsm6ds3_gyro_hpf_t filter);
+
+    /**
+     * @brief Enable/disable significant motion detection.
+     * Don't forget to enable interrupt too!
+     *
+     * @param enable
+     * @param threshold 0-255
+     * @return true if successful, otherwise false
+     */
+    bool significantMotion(bool enable, char threshold = 6);
 
     /**
      * @brief Convert raw temperature reading to °C

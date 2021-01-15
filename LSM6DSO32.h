@@ -54,9 +54,31 @@ class LSM6DSO32: public LSM6DS {
     } lsm6dso32_accel_scale_t;
 
     typedef enum {
-        AccelHighRes_Off = 0b00,
-        AccelHighRes_On = 0b10
-    } lsm6dso32_accel_highres_t;
+        AccelLFP2_Off = 0b00,
+        AccelLFP2_On = 0b10
+    } lsm6dso32_accel_lpf2_t;
+
+    // Slope, High-pass & Low-pass2 filter
+    typedef enum {
+        AccelFilter_0 = 0, // ODR/4
+        AccelFilter_1, // ODR/10
+        AccelFilter_2, // ODR/20
+        AccelFilter_3, // ODR/45
+        AccelFilter_4, // ODR/100
+        AccelFilter_5, // ODR/200
+        AccelFilter_9, // ODR/400
+        AccelFilter_10, // ODR/800
+        AccelFilter_Off,
+    } lsm6dso32_accel_lhpf_t;
+
+    // High-pass filter cutoff frequency
+    typedef enum {
+        GyroHPF_0 = 0, // 16 mHz
+        GyroHPF_1, // 65 mHz
+        GyroHPF_2, // 260 mHz
+        GyroHPF_3, // 1.04 Hz
+        GyroHPF_Off,
+    } lsm6dso32_gyro_hpf_t;
 
     LSM6DSO32(int address);
     LSM6DSO32(PinName sda, PinName scl, int address = LSM6DS_DEFAULT_ADDRESS, uint32_t frequency = 400000);
@@ -78,7 +100,25 @@ class LSM6DSO32: public LSM6DS {
      * @return true if successful, otherwise false
      */
     bool setupAccel(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale = AccelScale_4G,
-                      lsm6dso32_accel_highres_t high_res = AccelHighRes_Off);
+                    lsm6dso32_accel_lpf2_t lpf2 = AccelLFP2_Off);
+
+    /**
+     * @brief Set Slope, High-pass or Low-pass2 filter for accelerometer
+     *
+     * @param filter filter type
+     * @param high_pass high-pass or low-pass filter selection
+     * @param lp_6d enable low-pass filter for 6D (only if filter is off or LPF2 is set)
+     * @return true if successful, otherwise false
+     */
+    bool setAccelFilter(lsm6dso32_accel_lhpf_t filter, bool high_pass, bool lp_6d);
+
+    /**
+     * @brief Set high-pass filter for gyroscope
+     *
+     * @param filter filter type
+     * @return true if successful, otherwise false
+     */
+    bool setGyroFilter(lsm6dso32_gyro_hpf_t filter);
 
     /**
      * @brief Convert raw temperature reading to °C

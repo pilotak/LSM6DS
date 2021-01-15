@@ -40,6 +40,7 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
     }
 
     if (!checkWhoAmI(LSM6DSO32_WHOAMI)) {
+        tr_error("Different chip ID");
         return false;
     }
 
@@ -56,12 +57,60 @@ bool LSM6DSO32::init(I2C *i2c_obj) {
 }
 
 bool LSM6DSO32::setupAccel(lsm6dso32_accel_odr_t odr, lsm6dso32_accel_scale_t scale,
-                         lsm6dso32_accel_highres_t high_res) {
-    if (!LSM6DS::setupAccel((char)odr, (char)scale, (char)high_res)) {
+                           lsm6dso32_accel_lpf2_t lpf2) {
+    if (!LSM6DS::setupAccel((char)odr, (char)scale, (char)lpf2)) {
         return false;
     }
 
     return updateAccelScale();
+}
+bool LSM6DSO32::setAccelFilter(lsm6dso32_accel_lhpf_t filter, bool high_pass, bool lp_6d) {
+    char data[2];
+
+    if (!readRegister(REG_CTRL8_XL, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b00000100; // HP_SLOPE_XL_EN
+
+    if (high_pass) {
+        tr_info("Accel high-pass filter");
+        data[0] |= 0b00000100; // HP_SLOPE_XL_EN
+
+    } else {
+        tr_info("Accel low-pass filter");
+
+        if (!readRegister(REG_CTRL1_XL, data + 1)) {
+            return false;
+        }
+
+        if ((data[1] & 0b10) == 0) {
+            tr_error("AccelLFP2_On has to be set first");
+            return false;
+        }
+    }
+
+    data[0] &= ~0b00000001; // LOW_PASS_ON_6D
+
+    if (filter != AccelFilter_Off) {
+        data[0] &= ~0b11100000; // HPCF_XL
+        data[0] |= ((char)filter << 5); // HPCF_XL
+
+    } else {
+        if (!high_pass) {
+            tr_info("Enabling low-pass filter on 6D");
+            data[0] |= lp_6d;
+
+        } else if (lp_6d) {
+            tr_error("LPF on 6D needs low-pass filter set");
+        }
+    }
+
+    return writeRegister(REG_CTRL8_XL, data);
+}
+
+bool LSM6DSO32::setGyroFilter(lsm6dso32_gyro_hpf_t filter) {
+    return LSM6DS::setGyroFilter((char)filter, (filter == GyroHPF_Off));
 }
 
 bool LSM6DSO32::updateAccelScale() {

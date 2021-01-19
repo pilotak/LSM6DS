@@ -79,6 +79,19 @@ bool LSM6DS3::setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, l
 bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
     char data[1];
 
+    if (!readRegister(REG_CTRL10_C, data)) {
+        return false;
+    }
+
+    // embedded functionalities have to be enabled
+    if (!(data[0] & 0b100)) {
+        data[0] |= 0b100; // FUNC_EN
+
+        if (!writeRegister(REG_CTRL10_C, data)) {
+            return false;
+        }
+    }
+
     if (!readRegister(REG_CTRL8_XL, data)) {
         return false;
     }

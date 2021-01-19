@@ -89,6 +89,26 @@ class LSM6DS {
     bool setGyroMode(bool high_performance);
 
     /**
+     * @brief Enable axis on accelermeter
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return true if successful, otherwise false
+     */
+    bool setAccelAxis(bool x, bool y, bool z);
+
+    /**
+     * @brief Enable axis on gyro
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return true if successful, otherwise false
+     */
+    bool setGyroAxis(bool x, bool y, bool z);
+
+    /**
      * @brief INT1 pin control
      *
      * @param reg INT1_CTRL register
@@ -187,6 +207,7 @@ class LSM6DS {
         REG_SM_THS = 0x13,
         REG_CTRL7_G = 0x16,
         REG_CTRL8_XL = 0x17,
+        REG_CTRL9_XL = 0x18,
         REG_CTRL10_C = 0x19,
         REG_STATUS = 0x1E,
         REG_OUT_TEMP_L = 0x20,
@@ -294,6 +315,8 @@ class LSM6DS {
      * @return true if successful, otherwise false
      */
     bool read(char *buffer, size_t len);
+
+    bool setAxis(lsm6ds_reg_t reg, bool x, bool y, bool z);
 };
 
 #endif  // LSM6DS_H

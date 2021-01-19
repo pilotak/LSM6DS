@@ -229,6 +229,16 @@ bool LSM6DS::setupAccel(char odr_xl, char fs_xl, char bw_xl) {
     return writeRegister(REG_CTRL1_XL, data);
 }
 
+bool LSM6DS::setAccelAxis(bool x, bool y, bool z) {
+    tr_info("Setting accelerometer axis");
+    return setAxis(REG_CTRL9_XL, x, y, z);
+}
+
+bool LSM6DS::setGyroAxis(bool x, bool y, bool z) {
+    tr_info("Setting gyro axis");
+    return setAxis(REG_CTRL10_C, x, y, z);
+}
+
 bool LSM6DS::setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
     char data[1];
 
@@ -403,4 +413,19 @@ bool LSM6DS::write(const char *data, size_t len, bool stop) {
     }
 
     return true;
+}
+
+bool LSM6DS::setAxis(lsm6ds_reg_t reg, bool x, bool y, bool z) {
+    char data[1];
+
+    if (!readRegister(reg, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b00111000;
+    data[0] |= (char)x << 3;
+    data[0] |= (char)y << 4;
+    data[0] |= (char)z << 5;
+
+    return writeRegister(reg, data);
 }

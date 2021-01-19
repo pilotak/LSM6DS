@@ -101,7 +101,6 @@ class LSM6DS3: public LSM6DS {
     bool setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale = AccelScale_2G,
                     lsm6ds3_accel_aa_filter_t filter = AccelAAFilter_400Hz);
 
-
     /**
      * @brief Set Slope, high-pass or low-pass2 filter for accelerometer
      *

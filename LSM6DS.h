@@ -248,7 +248,7 @@ class LSM6DS {
      *
      * @return true if successful, otherwise false
      */
-    bool updateGyroScale(char *reg_ctrl2_g = nullptr);
+    bool updateGyroScale();
 
     /**
      * @brief Write register

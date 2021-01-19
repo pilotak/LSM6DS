@@ -226,19 +226,11 @@ bool LSM6DS::setupAccel(char odr_xl, char fs_xl, char bw_xl) {
     data[0] |= ((fs_xl & 0b11) << 2);
     data[0] |= ((odr_xl & 0b1111) << 4);
 
-    if (!writeRegister(REG_CTRL1_XL, data)) {
-        return false;
-    }
-
-    if (!readRegister(REG_CTRL1_XL, data + 1)) {
-        return false;
-    }
-
-    return (data[0] == data[1]);
+    return writeRegister(REG_CTRL1_XL, data);
 }
 
 bool LSM6DS::setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs_125) {
-    char data[2];
+    char data[1];
 
     tr_info("Setting new gyroscope mode");
 
@@ -250,18 +242,11 @@ bool LSM6DS::setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs
         return false;
     }
 
-    if (!readRegister(REG_CTRL2_G, data + 1)) {
-        return false;
-    }
-
-    if (data[0] != data[1]) {
-        return false;
-    }
-
-    return updateGyroScale(data + 1);
+    return updateGyroScale();
 }
 
 bool LSM6DS::setGyroMode(bool high_performance) {
+    tr_info("Setting gyro mode");
     char data[1];
 
     if (!readRegister(REG_CTRL7_G, data)) {
@@ -275,6 +260,7 @@ bool LSM6DS::setGyroMode(bool high_performance) {
 }
 
 bool LSM6DS::setGyroFilter(char filter, bool enable) {
+    tr_info("Setting gyro filter");
     char data[1];
 
     if (!readRegister(REG_CTRL7_G, data)) {
@@ -292,16 +278,11 @@ bool LSM6DS::setGyroFilter(char filter, bool enable) {
     return writeRegister(REG_CTRL7_G, data);
 }
 
-bool LSM6DS::updateGyroScale(char *reg_ctrl2_g) {
+bool LSM6DS::updateGyroScale() {
     char data[1];
 
-    if (reg_ctrl2_g == nullptr) {
-        if (!readRegister(REG_CTRL2_G, data)) {
-            return false;
-        }
-
-    } else {
-        memcpy(data, reg_ctrl2_g, 1);
+    if (!readRegister(REG_CTRL2_G, data)) {
+        return false;
     }
 
     switch ((data[0] >> 2) & 0b11) {

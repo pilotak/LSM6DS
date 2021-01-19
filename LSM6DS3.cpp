@@ -179,20 +179,17 @@ bool LSM6DS3::significantMotion(bool enable, char threshold) {
         }
     }
 
-    // enable significant motion detection
     if (!readRegister(REG_CTRL10_C, data)) {
         return false;
     }
 
     data[0] &= ~0b101;
     data[0] |= (char)enable; // SIGN_MOTION_EN
-    data[0] |= (char)enable << 2; // FUNC_EN
+    data[0] |= 0b100; // FUNC_EN
 
     if (!writeRegister(REG_CTRL10_C, data)) {
         return false;
     }
-
-
 
     return true;
 }

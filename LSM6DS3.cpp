@@ -79,16 +79,30 @@ bool LSM6DS3::setupAccel(lsm6ds3_accel_odr_t odr, lsm6ds3_accel_scale_t scale, l
 bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
     char data[1];
 
-    if (!readRegister(REG_CTRL10_C, data)) {
+    if (!readRegister(REG_TAP_CFG, data)) {
         return false;
     }
 
-    // embedded functionalities have to be enabled
-    if (!(data[0] & 0b100)) {
-        data[0] |= 0b100; // FUNC_EN
+    if (filter == AccelSlopeFilter) {
+        if (data[0] & 0b10000) {
+            data[0] &= ~0b10000; // SLOPE_FDS
 
-        if (!writeRegister(REG_CTRL10_C, data)) {
-            return false;
+            tr_info("Turning off SLOPE_FDS");
+
+            if (!writeRegister(REG_TAP_CFG, data)) {
+                return false;
+            }
+        }
+
+    } else {
+        if (!(data[0] & 0b10000)) {
+            data[0] |= 0b10000; // SLOPE_FDS
+
+            tr_info("Turning on SLOPE_FDS");
+
+            if (!writeRegister(REG_TAP_CFG, data)) {
+                return false;
+            }
         }
     }
 
@@ -102,19 +116,24 @@ bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
     } else {
         data[0] |= 0b00000100; // HP_SLOPE_XL_EN
 
-        if (filter == AccelLPF2) {
+        if (filter >= AccelLPF2_0) {
             data[0] |= 0b10000000; // LPF2_XL_EN
+            data[0] |= (((char)filter - 4) << 5); // HPCF_XL
+
+            tr_info("Enabling LPF2");
 
         } else {
             data[0] &= ~0b11100000; // LPF2_XL_EN & HPCF_XL
             data[0] |= ((char)filter << 5); // HPCF_XL
+
+            tr_info("Enabling HPF");
         }
     }
 
     data[0] &= ~0b00000001; // LOW_PASS_ON_6D
 
-    if (filter == AccelFilter_Off || filter == AccelLPF2) {
-        tr_info("Enabling low-pass filter on 6D");
+    if (filter == AccelFilter_Off || filter >= AccelLPF2_0) {
+        tr_info("Low-pass filter on 6D");
         data[0] |= lp_6d;
 
     } else if (lp_6d) {
@@ -122,6 +141,20 @@ bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
     }
 
     return writeRegister(REG_CTRL8_XL, data);
+}
+
+bool LSM6DS3::setAccelMode(bool high_performance) {
+    tr_info("Setting gyro mode");
+    char data[1];
+
+    if (!readRegister(REG_CTRL6_C, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b00010000;
+    data[0] |= (char)(!high_performance) << 4;
+
+    return writeRegister(REG_CTRL6_C, data);
 }
 
 bool LSM6DS3::setGyroFilter(lsm6ds3_gyro_hpf_t filter) {
@@ -192,6 +225,55 @@ bool LSM6DS3::significantMotion(bool enable, char threshold) {
     }
 
     return true;
+}
+
+bool LSM6DS3::wakeup(char threshold, char wake_duration, char sleep_duration) {
+    char data[1];
+
+    if (!readRegister(REG_CTRL8_XL, data)) {
+        return false;
+    }
+
+    if (data[0] & 0b10000000) {
+        tr_error("LPF2 must be disabled");
+        return false;
+    }
+
+    if (!readRegister(REG_WAKE_UP_DUR, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b01101111;
+    data[0] |= sleep_duration & 0b1111; // SLEEP_DUR[3:0]
+    data[0] |= (wake_duration & 0b11) << 5; // WAKE_DUR[1:0]
+
+    if (!writeRegister(REG_WAKE_UP_DUR, data)) {
+        return false;
+    }
+
+    if (!readRegister(REG_WAKE_UP_THS, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b00111111;
+    data[0] |= threshold & 0b111111; // WK_THS[5:0]
+
+    if (!writeRegister(REG_WAKE_UP_DUR, data)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool LSM6DS3::fifoMode(char gyro_decimation, char accel_decimation) {
+    char data[1];
+    tr_info("Setting FIFO decimation");
+
+    data[0] = 0;
+    data[0] |= accel_decimation & 0b111;
+    data[0] |= (gyro_decimation & 0b111) << 3;
+
+    return writeRegister((lsm6ds_reg_t)REG_FIFO_CTRL3, data);
 }
 
 float LSM6DS3::temperatureToC(int16_t raw) {

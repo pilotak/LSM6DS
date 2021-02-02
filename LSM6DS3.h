@@ -66,7 +66,10 @@ class LSM6DS3: public LSM6DS {
         AccelHPF_1, // ODR/100
         AccelHPF_2, // ODR/9
         AccelHPF_3, // ODR/400
-        AccelLPF2,
+        AccelLPF2_0, // ODR/50
+        AccelLPF2_1, // ODR/100
+        AccelLPF2_2, // ODR/9
+        AccelLPF2_3, // ODR/400
         AccelFilter_Off,
     } lsm6ds3_accel_lhpf_t;
 
@@ -108,7 +111,15 @@ class LSM6DS3: public LSM6DS {
      * @param lp_6d enable low-pass filter for 6D (only if filter is off or LPF2 is set)
      * @return true if successful, otherwise false
      */
-    bool setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d);
+    bool setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d = false);
+
+    /**
+     * @brief Set high-performance operating mode for accelerometer
+     *
+     * @param high_performance
+     * @return true if successful, otherwise false
+     */
+    bool setAccelMode(bool high_performance);
 
     /**
      * @brief Set high-pass filter for gyroscope
@@ -129,6 +140,26 @@ class LSM6DS3: public LSM6DS {
     bool significantMotion(bool enable, char threshold = 6);
 
     /**
+     * @brief Configure wakeup event
+     * Don't forget to enable FN interrupt too!
+     *
+     * @param threshold
+     * @param wake_duration 0 will disable this function, range 0-3
+     * @param sleep_duration range 0-15
+     * @return true if successful, otherwise false
+     */
+    bool wakeup(char threshold, char wake_duration, char sleep_duration = 0);
+
+    /**
+     * @brief Set FIFO mode
+     *
+     * @param gyro_decimation
+     * @param accel_decimation
+     * @return true if successful, otherwise false
+     */
+    bool fifoMode(char gyro_decimation, char accel_decimation);
+
+    /**
      * @brief Convert raw temperature reading to °C
      *
      * @param raw reading from getTemperature()
@@ -145,6 +176,14 @@ class LSM6DS3: public LSM6DS {
     float temperatureToF(int16_t raw);
 
   private:
+    typedef enum {
+        REG_FIFO_CTRL1 = 0x06,
+        REG_FIFO_CTRL2 = 0x07,
+        REG_FIFO_CTRL3 = 0x08,
+        REG_FIFO_CTRL4 = 0x09,
+        REG_FIFO_CTRL5 = 0x0A,
+    } lsm6ds3_reg_t;
+
     /**
      * @brief Update lib accelerometer scale
      *

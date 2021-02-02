@@ -73,6 +73,14 @@ bool LSM6DS::setINT2(char reg) {
     return writeRegister(REG_INT2_CTRL, &reg);
 }
 
+bool LSM6DS::setFnINT1(char reg) {
+    return writeRegister(REG_MD1_CFG, &reg);
+}
+
+bool LSM6DS::setFnINT2(char reg) {
+    return writeRegister(REG_MD2_CFG, &reg);
+}
+
 bool LSM6DS::getTemperature(int16_t *raw_temp) {
     char data[2];
 
@@ -193,6 +201,19 @@ bool LSM6DS::getGyro(int16_t *x, int16_t *y, int16_t *z) {
     }
 
     return true;
+}
+
+bool LSM6DS::bdu(bool enable) {
+    char data[1];
+
+    if (!readRegister(REG_CTRL3_C, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b01000000; // clear
+    data[0] |= (char)enable << 6;
+
+    return writeRegister(REG_CTRL3_C, data);
 }
 
 bool LSM6DS::reset() {

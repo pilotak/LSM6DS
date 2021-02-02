@@ -125,6 +125,22 @@ class LSM6DS {
     bool setINT2(char reg);
 
     /**
+     * @brief Functions routing on INT1 register
+     *
+     * @param reg MD1_CFG register
+     * @return true if successful, otherwise false
+     */
+    bool setFnINT1(char reg);
+
+    /**
+     * @brief Functions routing on INT1 register
+     *
+     * @param reg MD2_CFG register
+     * @return true if successful, otherwise false
+     */
+    bool setFnINT2(char reg);
+
+    /**
      * @brief Set the mode of INT1 and INT2 pins
      *
      * @param mode
@@ -189,6 +205,14 @@ class LSM6DS {
     bool getGyro(int16_t *x, int16_t *y, int16_t *z);
 
     /**
+     * @brief Set block data update
+     *
+     * @param enable
+     * @return true if successful, otherwise false
+     */
+    bool bdu(bool enable);
+
+    /**
      * @brief Perform SW device reset
      *
      * @return true if successful, otherwise false
@@ -200,11 +224,13 @@ class LSM6DS {
         REG_FUNC_CFG_ACCESS = 0x01,
         REG_INT1_CTRL = 0x0D,
         REG_INT2_CTRL = 0x0E,
+        REG_WHO_AM_I = 0x0F,
         REG_CTRL1_XL = 0x10,
         REG_CTRL2_G  = 0x11,
         REG_CTRL3_C = 0x12,
         REG_CTRL4_C = 0x13,
         REG_SM_THS = 0x13,
+        REG_CTRL6_C = 0x15,
         REG_CTRL7_G = 0x16,
         REG_CTRL8_XL = 0x17,
         REG_CTRL9_XL = 0x18,
@@ -224,7 +250,11 @@ class LSM6DS {
         REG_OUTY_H_XL = 0x2B,
         REG_OUTZ_L_XL = 0x2C,
         REG_OUTZ_H_XL = 0x2D,
-        REG_WHO_AM_I = 0x0F,
+        REG_WAKE_UP_THS = 0x5B,
+        REG_WAKE_UP_DUR = 0x5C,
+        REG_MD1_CFG = 0x5E,
+        REG_MD2_CFG = 0x5F,
+        REG_TAP_CFG = 0x58,
     } lsm6ds_reg_t;
 
     uint8_t _accel_scale = 4;

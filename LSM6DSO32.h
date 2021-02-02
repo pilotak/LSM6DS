@@ -137,6 +137,13 @@ class LSM6DSO32: public LSM6DS {
     float temperatureToF(int16_t raw);
 
   private:
+    typedef enum {
+        REG_FIFO_CTRL1 = 0x07,
+        REG_FIFO_CTRL2 = 0x08,
+        REG_FIFO_CTRL3 = 0x09,
+        REG_FIFO_CTRL4 = 0x0A,
+    } lsm6dso32_reg_t;
+
     /**
      * @brief Update lib accelerometer scale
      *

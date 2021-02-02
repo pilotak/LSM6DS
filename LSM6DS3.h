@@ -143,12 +143,29 @@ class LSM6DS3: public LSM6DS {
      * @brief Configure wakeup event
      * Don't forget to enable FN interrupt too!
      *
-     * @param threshold
-     * @param wake_duration 0 will disable this function, range 0-3
+     * @param threshold range 0-63
+     * @param duration range 0-3
      * @param sleep_duration range 0-15
      * @return true if successful, otherwise false
      */
-    bool wakeup(char threshold, char wake_duration, char sleep_duration = 0);
+    bool setWakeup(char threshold, char duration, char sleep_duration);
+
+    /**
+     * @brief Set the Latched Interrupt mode
+     *
+     * @param enable
+     * @return true if successful, otherwise fals
+     */
+    bool setIntLatchMode(bool enable);
+
+
+    /**
+     * @brief Enable/disable inactivity detection
+     *
+     * @param enable
+     * @return true if successful, otherwise false
+     */
+    bool enableInactivity(bool enable);
 
     /**
      * @brief Set FIFO mode

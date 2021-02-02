@@ -38,6 +38,10 @@ using namespace std::chrono;
 
 #define LSM6DS_DEFAULT_ADDRESS (0x6B << 1)
 
+#define LSM6DS_WAKEUP_SRC_FF_IA 0b100000 // free-fall event
+#define LSM6DS_WAKEUP_SRC_SLEEP_STATE_IA 0b10000 // inactivity event
+#define LSM6DS_WAKEUP_SRC_WU_IA 0b1000 // wakeup event
+
 class LSM6DS {
   public:
     typedef enum {
@@ -157,6 +161,14 @@ class LSM6DS {
     bool getStatus(char *status);
 
     /**
+     * @brief Get the Wakeup Reason object
+     *
+     * @param reason place to put the reading (1 byte)
+     * @return true if successful, otherwise false
+     */
+    bool getWakeupReason(char *reason);
+
+    /**
      * @brief Get the chip temperature
      *
      * @param raw_temp place to put the reading, result in LSB
@@ -218,10 +230,10 @@ class LSM6DS {
      * @return true if successful, otherwise false
      */
     bool reset();
-
   protected:
     typedef enum {
         REG_FUNC_CFG_ACCESS = 0x01,
+        REG_WAKE_UP_SRC = 0x1B,
         REG_INT1_CTRL = 0x0D,
         REG_INT2_CTRL = 0x0E,
         REG_WHO_AM_I = 0x0F,
@@ -256,7 +268,6 @@ class LSM6DS {
         REG_MD2_CFG = 0x5F,
         REG_TAP_CFG = 0x58,
     } lsm6ds_reg_t;
-
     uint8_t _accel_scale = 4;
 
     /**
@@ -315,7 +326,7 @@ class LSM6DS {
      * @brief Read register
      *
      * @param reg register address
-     * @param data a pointer to the data block
+     * @param data place to put the reading
      * @param len the size of the data to be read
      * @return true if successful, otherwise false
      */

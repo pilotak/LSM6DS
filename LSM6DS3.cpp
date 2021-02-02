@@ -126,7 +126,7 @@ bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
             data[0] &= ~0b11100000; // LPF2_XL_EN & HPCF_XL
             data[0] |= ((char)filter << 5); // HPCF_XL
 
-            tr_info("Enabling HPF");
+            tr_info("Enabling %s", filter == AccelSlopeFilter ? "slope control" : "HPF");
         }
     }
 
@@ -191,6 +191,7 @@ bool LSM6DS3::updateAccelScale() {
 
 bool LSM6DS3::significantMotion(bool enable, char threshold) {
     char data[1];
+    tr_info("Setting up significant motion event");
 
     if (enable) {
         data[0] = 0b10000000;
@@ -227,8 +228,9 @@ bool LSM6DS3::significantMotion(bool enable, char threshold) {
     return true;
 }
 
-bool LSM6DS3::wakeup(char threshold, char wake_duration, char sleep_duration) {
+bool LSM6DS3::setWakeup(char threshold, char wake_duration, char sleep_duration) {
     char data[1];
+    tr_info("Setting up wakeup event");
 
     if (!readRegister(REG_CTRL8_XL, data)) {
         return false;
@@ -258,11 +260,34 @@ bool LSM6DS3::wakeup(char threshold, char wake_duration, char sleep_duration) {
     data[0] &= ~0b00111111;
     data[0] |= threshold & 0b111111; // WK_THS[5:0]
 
-    if (!writeRegister(REG_WAKE_UP_DUR, data)) {
+    return writeRegister(REG_WAKE_UP_THS, data);
+}
+
+bool LSM6DS3::enableInactivity(bool enable) {
+    char data[1];
+    tr_info("Setting up inactivity event");
+
+    if (!readRegister(REG_WAKE_UP_THS, data)) {
         return false;
     }
 
-    return true;
+    data[0] &= ~0b01000000;
+    data[0] |= (char)enable << 6;
+
+    return writeRegister(REG_WAKE_UP_THS, data);
+}
+
+bool LSM6DS3::setIntLatchMode(bool enable) {
+    char data[1];
+
+    if (!readRegister(REG_TAP_CFG, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b00000001; // LIR
+    data[0] |= (char)enable;;
+
+    return writeRegister(REG_TAP_CFG, data);
 }
 
 bool LSM6DS3::fifoMode(char gyro_decimation, char accel_decimation) {

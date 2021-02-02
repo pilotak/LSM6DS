@@ -64,6 +64,19 @@ bool LSM6DS::getStatus(char *status) {
     return true;
 }
 
+bool LSM6DS::getWakeupReason(char *reason) {
+    if (!readRegister(REG_WAKE_UP_SRC, reason, 1)) {
+        tr_error("Could not get wakeup src");
+        return false;
+    }
+
+    tr_info("Wakeup reason - free-fall: %u, in/activity: %u, wakeup: %u",
+            (*reason & LSM6DS_WAKEUP_SRC_FF_IA) >> 5,
+            (*reason & LSM6DS_WAKEUP_SRC_SLEEP_STATE_IA) >> 4,
+            (*reason & LSM6DS_WAKEUP_SRC_WU_IA) >> 3);
+
+    return true;
+}
 
 bool LSM6DS::setINT1(char reg) {
     return writeRegister(REG_INT1_CTRL, &reg);

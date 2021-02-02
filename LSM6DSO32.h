@@ -121,6 +121,14 @@ class LSM6DSO32: public LSM6DS {
     bool setGyroFilter(lsm6dso32_gyro_hpf_t filter);
 
     /**
+     * @brief Set the Latched Interrupt mode
+     * 
+     * @param enable 
+     * @return true if successful, otherwise fals
+     */
+    bool setIntLatchMode(bool enable);
+
+    /**
      * @brief Convert raw temperature reading to °C
      *
      * @param raw reading from getTemperature()
@@ -142,6 +150,7 @@ class LSM6DSO32: public LSM6DS {
         REG_FIFO_CTRL2 = 0x08,
         REG_FIFO_CTRL3 = 0x09,
         REG_FIFO_CTRL4 = 0x0A,
+        REG_PAGE_RW = 0x17,
     } lsm6dso32_reg_t;
 
     /**

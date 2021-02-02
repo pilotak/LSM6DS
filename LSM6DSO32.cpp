@@ -141,6 +141,21 @@ bool LSM6DSO32::updateAccelScale() {
     return true;
 }
 
+bool LSM6DSO32::setIntLatchMode(bool enable) {
+    // TODO
+    /*char data[1];
+
+    if (!readRegister((lsm6ds_reg_t)REG_PAGE_RW, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b100000000; // EMB_FUNC_LIR
+    data[0] |= (char)enable << 6;
+
+    return writeRegister((lsm6ds_reg_t)REG_PAGE_RW, data);*/
+    return false;
+}
+
 float LSM6DSO32::temperatureToC(int16_t raw) {
     return ((float)raw / 256.0) + 25.0;
 }

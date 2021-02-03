@@ -38,9 +38,12 @@ using namespace std::chrono;
 
 #define LSM6DS_DEFAULT_ADDRESS (0x6B << 1)
 
-#define LSM6DS_WAKEUP_SRC_FF_IA 0b100000 // free-fall event
+#define LSM6DS_WAKEUP_SRC_FF_IA          0b100000 // free-fall event
 #define LSM6DS_WAKEUP_SRC_SLEEP_STATE_IA 0b10000 // inactivity event
-#define LSM6DS_WAKEUP_SRC_WU_IA 0b1000 // wakeup event
+#define LSM6DS_WAKEUP_SRC_WU_IA          0b1000 // wakeup event
+#define LSM6DS_WAKEUP_SRC_X_WU           0b100 // wakeup event on X-axis
+#define LSM6DS_WAKEUP_SRC_Y_WU           0b10 // wakeup event on Y-axis
+#define LSM6DS_WAKEUP_SRC_Z_WU           0b1 // wakeup event on Z-axis
 
 class LSM6DS {
   public:
@@ -70,6 +73,11 @@ class LSM6DS {
         IntMode_OpenDrain
     } lsm6ds_int_mode_t;
 
+    typedef enum {
+        HighPerformanceEnabled = 0, // default
+        HighPerformanceDisabled
+    } lsm6ds_hm_mode_t;
+
     LSM6DS(int address);
     LSM6DS(PinName sda, PinName scl, int address, uint32_t frequency = 400000);
     virtual ~LSM6DS(void);
@@ -90,7 +98,15 @@ class LSM6DS {
      * @param high_performance
      * @return true if successful, otherwise false
      */
-    bool setGyroMode(bool high_performance);
+    bool setGyroMode(lsm6ds_hm_mode_t high_performance);
+
+    /**
+     * @brief Set high-performance operating mode for accelerometer
+     *
+     * @param high_performance
+     * @return true if successful, otherwise false
+     */
+    bool setAccelMode(lsm6ds_hm_mode_t high_performance);
 
     /**
      * @brief Enable axis on accelermeter

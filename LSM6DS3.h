@@ -29,6 +29,14 @@ SOFTWARE.
 
 #define LSM6DS3_WHOAMI 0x69
 
+#define LSM6DS3_FN_SRC_STEP_COUNT_DELTA_IA 0b10000000 // pedometer step recognition on delta
+#define LSM6DS3_FN_SRC_SIGN_MOTION_IA      0b1000000 // significant motion event
+#define LSM6DS3_FN_SRC_TILT_IA             0b100000 // tilt event detection
+#define LSM6DS3_FN_SRC_STEP_DETECTED       0b10000 // step detector even
+#define LSM6DS3_FN_SRC_STEP_OVERFLOW       0b1000 // step counter overflow 
+#define LSM6DS3_FN_SRC_SI_END_OP           0b10 // hard/soft-iron calculation
+#define LSM6DS3_FN_SRC_SENSORHUB_END_OP    0b1 // sensor hub communication
+
 class LSM6DS3: public LSM6DS {
   public:
     typedef enum {
@@ -114,14 +122,6 @@ class LSM6DS3: public LSM6DS {
     bool setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d = false);
 
     /**
-     * @brief Set high-performance operating mode for accelerometer
-     *
-     * @param high_performance
-     * @return true if successful, otherwise false
-     */
-    bool setAccelMode(bool high_performance);
-
-    /**
      * @brief Set high-pass filter for gyroscope
      *
      * @param filter filter type
@@ -138,6 +138,14 @@ class LSM6DS3: public LSM6DS {
      * @return true if successful, otherwise false
      */
     bool significantMotion(bool enable, char threshold = 6);
+
+    /**
+     * @brief Get function interrupt source register
+     *
+     * @param reason place to put the reading (1 byte)
+     * @return true if successful, otherwise false
+     */
+    bool getFnIntReason(char *reason);
 
     /**
      * @brief Configure wakeup event
@@ -199,6 +207,7 @@ class LSM6DS3: public LSM6DS {
         REG_FIFO_CTRL3 = 0x08,
         REG_FIFO_CTRL4 = 0x09,
         REG_FIFO_CTRL5 = 0x0A,
+        REG_FUNC_SRC = 0x53,
     } lsm6ds3_reg_t;
 
     /**

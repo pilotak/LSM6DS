@@ -143,20 +143,6 @@ bool LSM6DS3::setAccelFilter(lsm6ds3_accel_lhpf_t filter, bool lp_6d) {
     return writeRegister(REG_CTRL8_XL, data);
 }
 
-bool LSM6DS3::setAccelMode(bool high_performance) {
-    tr_info("Setting gyro mode");
-    char data[1];
-
-    if (!readRegister(REG_CTRL6_C, data)) {
-        return false;
-    }
-
-    data[0] &= ~0b00010000;
-    data[0] |= (char)(!high_performance) << 4;
-
-    return writeRegister(REG_CTRL6_C, data);
-}
-
 bool LSM6DS3::setGyroFilter(lsm6ds3_gyro_hpf_t filter) {
     return LSM6DS::setGyroFilter((char)filter, (filter == GyroHPF_Off));
 }
@@ -261,6 +247,16 @@ bool LSM6DS3::setWakeup(char threshold, char wake_duration, char sleep_duration)
     data[0] |= threshold & 0b111111; // WK_THS[5:0]
 
     return writeRegister(REG_WAKE_UP_THS, data);
+}
+
+bool LSM6DS3::getFnIntReason(char *reason) {
+    if (!readRegister((lsm6ds_reg_t)REG_FUNC_SRC, reason, 1)) {
+        tr_error("Could not get function interrupt source");
+        return false;
+    }
+
+    tr_info("Fn interrupt reason - significant motion: %u", (*reason & LSM6DS3_FN_SRC_SIGN_MOTION_IA) >> 6);
+    return true;
 }
 
 bool LSM6DS3::enableInactivity(bool enable) {

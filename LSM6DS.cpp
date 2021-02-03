@@ -289,7 +289,7 @@ bool LSM6DS::setupGyro(lsm6ds_gyro_odr_t odr, lsm6ds_gyro_scale_t scale, bool fs
     return updateGyroScale();
 }
 
-bool LSM6DS::setGyroMode(bool high_performance) {
+bool LSM6DS::setGyroMode(lsm6ds_hm_mode_t high_performance) {
     tr_info("Setting gyro mode");
     char data[1];
 
@@ -298,10 +298,25 @@ bool LSM6DS::setGyroMode(bool high_performance) {
     }
 
     data[0] &= ~0b10000000;
-    data[0] |= (char)(!high_performance) << 7;
+    data[0] |= (char)high_performance << 7;
 
     return writeRegister(REG_CTRL7_G, data);
 }
+
+bool LSM6DS::setAccelMode(lsm6ds_hm_mode_t high_performance) {
+    tr_info("Setting accel mode");
+    char data[1];
+
+    if (!readRegister(REG_CTRL6_C, data)) {
+        return false;
+    }
+
+    data[0] &= ~0b00010000;
+    data[0] |= (char)high_performance << 4;
+
+    return writeRegister(REG_CTRL6_C, data);
+}
+
 
 bool LSM6DS::setGyroFilter(char filter, bool enable) {
     tr_info("Setting gyro filter");

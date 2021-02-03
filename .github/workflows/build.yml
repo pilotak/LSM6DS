@@ -34,10 +34,11 @@ jobs:
       - name: Create mbed project
         run: |
           mbed new .
+          echo '{"target_overrides":{"*":{"platform.callback-nontrivial":true}}}' > mbed_app.json
 
       - name: Extract code from README
         run: |
-          echo 'import exdown' >> extract.py
+          echo 'import exdown' > extract.py
           echo 'code = exdown.extract("README.md", syntax_filter="cpp")' >> extract.py
           echo 'print(code[0][0])' >> extract.py
           python extract.py > main.cpp

@@ -37,6 +37,25 @@ SOFTWARE.
 #define LSM6DS3_FN_SRC_SI_END_OP           0b10 // hard/soft-iron calculation
 #define LSM6DS3_FN_SRC_SENSORHUB_END_OP    0b1 // sensor hub communication
 
+#define LSM6DS3_MD1_CFG_INT1_INACT_STATE 0b10000000 // inactivity mode
+#define LSM6DS3_MD1_CFG_INT1_SINGLE_TAP  0b1000000 // single-tap recognition
+#define LSM6DS3_MD1_CFG_INT1_WU          0b100000 //  wakeup event
+#define LSM6DS3_MD1_CFG_INT1_FF          0b10000 // free-fall event
+#define LSM6DS3_MD1_CFG_INT1_DOUBLE_TAP  0b1000 // double-tap event
+#define LSM6DS3_MD1_CFG_INT1_6D          0b100 // 6D event
+#define LSM6DS3_MD1_CFG_TNT1_TILT        0b10 // tilt event
+#define LSM6DS3_MD1_CFG_INT1_TIMER       0b1 // end counter event
+
+#define LSM6DS3_MD2_CFG_INT2_INACT_STATE 0b10000000 // inactivity mode
+#define LSM6DS3_MD2_CFG_INT2_SINGLE_TAP  0b1000000 // single-tap recognition
+#define LSM6DS3_MD2_CFG_INT2_WU          0b100000 //  wakeup event
+#define LSM6DS3_MD2_CFG_INT2_FF          0b10000 // free-fall event
+#define LSM6DS3_MD2_CFG_INT2_DOUBLE_TAP  0b1000 // double-tap event
+#define LSM6DS3_MD2_CFG_INT2_6D          0b100 // 6D event
+#define LSM6DS3_MD2_CFG_TNT1_TILT        0b10 // tilt event
+#define LSM6DS3_MD2_CFG_INT2_IRON        0b1 // soft-iron/hard-iron algorithm end event
+
+
 class LSM6DS3: public LSM6DS {
   public:
     typedef enum {

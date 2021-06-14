@@ -36,6 +36,13 @@ using namespace std::chrono;
     #define TRACE_GROUP "LSM6"
 #endif
 
+#if !defined(MBED_CONF_LSM6DS_DEBUG)
+    #define tr_error(...) {}
+    #define tr_warning(...) {}
+    #define tr_info(...) {}
+    #define tr_debug(...) {}
+#endif
+
 #define LSM6DS_DEFAULT_ADDRESS (0x6B << 1)
 
 #define LSM6DS_WAKEUP_SRC_FF_IA          0b100000 // free-fall event

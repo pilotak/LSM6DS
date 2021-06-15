@@ -13,6 +13,9 @@ Mbed library for LSM6DS3 & LSM6DSO32 accel &amp; gyro. Supports only I2C
 #include "mbed.h"
 #include "LSM6DS3.h"
 
+#define I2C_SDA PB_9
+#define I2C_SCL PB_8
+
 LSM6DS3 accel(I2C_SDA, I2C_SCL);
 
 int main() {
@@ -49,6 +52,9 @@ int main() {
 ```cpp
 #include "mbed.h"
 #include "LSM6DS3.h"
+
+#define I2C_SDA PB_9
+#define I2C_SCL PB_8
 
 EventQueue eQueue(2 * EVENTS_EVENT_SIZE);
 LSM6DS3 accel(I2C_SDA, I2C_SCL);
@@ -101,6 +107,9 @@ int main() {
 ```cpp
 #include "mbed.h"
 #include "LSM6DS3.h"
+
+#define I2C_SDA PB_9
+#define I2C_SCL PB_8
 
 EventQueue eQueue(2 * EVENTS_EVENT_SIZE);
 LSM6DS3 accel(I2C_SDA, I2C_SCL);
@@ -158,6 +167,9 @@ int main() {
 ```cpp
 #include "mbed.h"
 #include "LSM6DS3.h"
+
+#define I2C_SDA PB_9
+#define I2C_SCL PB_8
 
 EventQueue eQueue(2 * EVENTS_EVENT_SIZE);
 LSM6DS3 accel(I2C_SDA, I2C_SCL);

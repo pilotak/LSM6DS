@@ -1,5 +1,5 @@
 {
-  "name": "LSM6DS",
+  "name": "lsm6ds",
   "config": {
     "debug": {
       "help": "Enable/disable debug",
